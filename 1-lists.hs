@@ -1,4 +1,5 @@
--- Alternative solutions for a single problem keep the name of the first solution except they are numbered accordingly. Auxiliary functions are marked with apostrophes.
+-- Alternative solutions for a single problem keep the name of the first solution except they are
+-- numbered accordingly. Auxiliary functions are marked with apostrophes.
 
 -- Problem 1: Find the last element of a list.
 myLast :: [a] -> a
@@ -40,7 +41,8 @@ myReverse' (x:xs) ys = myReverse' xs (x:ys)
 
 myReverse2 xs = foldl (flip (:)) [] xs
 
--- Problem 6: Find out whether a list is a palindrome. A palindrome can be read forward or backward; e.g. (x a m a x).
+-- Problem 6: Find out whether a list is a palindrome. A palindrome can be read forward or backward;
+-- e.g. (x a m a x).
 isPalindrome :: (Eq a) => [a] -> Bool
 isPalindrome [] = True
 isPalindrome (x:[]) = True
@@ -74,7 +76,8 @@ compress (x:x':xs)
 	| x == x' = compress (x':xs)
 	| otherwise = x : compress (x':xs)
 	
--- Problem 9: Pack consecutive duplicates of list elements into sublists. If a list contains repeated elements they should be placed in separate sublists.
+-- Problem 9: Pack consecutive duplicates of list elements into sublists. If a list contains
+-- repeated elements they should be placed in separate sublists.
 pack :: (Eq a) => [a] -> [[a]]
 pack [] = []
 pack (x:[]) = (x:[]):[]
@@ -83,7 +86,9 @@ pack (x:xs)
 	| otherwise = (x:[]):(y:ys):zs
 	where ((y:ys):zs) = pack xs
 
--- Problem 10: Run-length encoding of a list. Use the result of problem P09 to implement the so-called run-length encoding data compression method. Consecutive duplicates of elements are encoded as lists (N E) where N is the number of duplicates of the element E.
+-- Problem 10: Run-length encoding of a list. Use the result of problem P09 to implement the
+-- so-called run-length encoding data compression method. Consecutive duplicates of elements are
+-- encoded as lists (N E) where N is the number of duplicates of the element E.
 encode :: (Eq a, Integral b) => [a] -> [(b, a)]
 encode [] = []
 encode xs =
