@@ -152,3 +152,21 @@ dupli :: [a] -> [a]
 dupli [] = []
 dupli (x:[]) = x:x:[]
 dupli (x:xs) = x:x:dupli xs
+
+-- Problem 15: Replicate the elements of a list a given number of times.
+repli :: (Integral b) => [a] -> b -> [a]
+repli [] _ = []
+repli _ 0 = []
+repli (x:xs) n = repliElem x n ++ repli xs n
+
+repliElem :: (Integral b) => a -> b -> [a]
+repliElem _ 0 = []
+repliElem x n = x:repliElem x (n-1)
+
+repli2 :: (Integral b) => [a] -> b -> [a]
+repli2 [] _ = []
+repli2 _ 0 = []
+repli2 (x:xs) n = repli2' x n $ repli2 xs n
+	where
+	repli2' _ 0 xs = xs
+	repli2' x n xs = x:repli2' x (n-1) xs
