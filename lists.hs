@@ -131,6 +131,15 @@ encodeModified2 (x:xs)
 	| otherwise = (Single x):y:ys
 	where
 	(y:ys) = encodeModified2 xs
-	tupleFromListItem (Single x) = (1, x)
-	tupleFromListItem (Multiple n x) = (n, x)
-	(n, e) = tupleFromListItem y
+	tupleOfListItem (Single x) = (1, x)
+	tupleOfListItem (Multiple n x) = (n, x)
+	(n, e) = tupleOfListItem y
+
+-- Problem 12: Decode a run-length encoded list.
+-- Given a run-length code list generated as specified in problem 11. Construct its uncompressed
+-- version.
+decodeModified  :: (Eq a) => [ListItem a] -> [a]
+decodeModified [] = []
+decodeModified ((Single x):xs) = x : decodeModified xs
+decodeModified ((Multiple 2 x):xs) = x : x : decodeModified xs
+decodeModified ((Multiple n x):xs) = x : decodeModified ((Multiple (n-1) x):xs)
