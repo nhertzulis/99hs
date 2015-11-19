@@ -122,19 +122,6 @@ encodeModified = map f . encode
 	f (1, x) = Single x
 	f (n, x) = Multiple n x
 
--- The following implementation does not use the result of problem 10.
-encodeModified2 :: (Eq a) => [a] -> [ListItem a]
-encodeModified2 [] = []
-encodeModified2 (x:[]) = (Single x):[]
-encodeModified2 (x:xs)
-	| e == x = (Multiple (n+1) x):ys
-	| otherwise = (Single x):y:ys
-	where
-	(y:ys) = encodeModified2 xs
-	tupleOfListItem (Single x) = (1, x)
-	tupleOfListItem (Multiple n x) = (n, x)
-	(n, e) = tupleOfListItem y
-
 -- Problem 12: Decode a run-length encoded list.
 -- Given a run-length code list generated as specified in problem 11. Construct its uncompressed
 -- version.
@@ -143,3 +130,20 @@ decodeModified [] = []
 decodeModified ((Single x):xs) = x : decodeModified xs
 decodeModified ((Multiple 2 x):xs) = x : x : decodeModified xs
 decodeModified ((Multiple n x):xs) = x : decodeModified ((Multiple (n-1) x):xs)
+
+-- Problem 13: Run-length encoding of a list (direct solution).
+-- Implement the so-called run-length encoding data compression method directly. I.e. don't
+-- explicitly create the sublists containing the duplicates, as in problem 9, but only count them.
+-- As in problem P11, simplify the result list by replacing the singleton lists (1 X) by X.
+encodeDirect :: (Eq a) => [a] -> [ListItem a]
+encodeDirect [] = []
+encodeDirect (x:[]) = (Single x):[]
+encodeDirect (x:xs)
+	| e == x = (Multiple (n+1) x):ys
+	| otherwise = (Single x):y:ys
+	where
+	(y:ys) = encodeDirect xs
+	tupleOfListItem (Single x) = (1, x)
+	tupleOfListItem (Multiple n x) = (n, x)
+	(n, e) = tupleOfListItem y
+
