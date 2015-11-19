@@ -203,3 +203,25 @@ slice2 xs i k = fst $ split (snd $ split xs (i-1)) (k-i+1)
 
 slice3 :: [a] -> Int -> Int -> [a]
 slice3 xs i k = take (k-i+1) $ drop (i-1) xs
+
+-- Problem 19: Rotate a list N places to the left.
+-- Hint: Use the predefined functions length and (++).
+rotate :: [a] -> Int -> [a]
+rotate xs n
+	| n /= 0 = zs++ys
+	| otherwise = xs
+	where
+		m = if n < 0 then length xs + n else n
+		(ys, zs) = split xs m
+	
+rotate2 :: [a] -> Int -> [a]
+rotate2 xs n
+	| n < 0 = rotate2 xs (length xs + n)
+	| n > 0 = let (ys, zs) = split xs n in zs++ys
+	| otherwise = xs
+
+-- Problem 20: Remove the K'th element from a list.
+removeAt :: (Integral a) => a -> [b] -> (b, [b])
+removeAt 1 (x:xs) = (x, xs)
+removeAt k (x:xs) = (y, x:ys)
+	where (y, ys) = removeAt (k-1) xs
