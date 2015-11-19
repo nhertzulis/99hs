@@ -147,3 +147,8 @@ encodeDirect (x:xs)
 	tupleOfListItem (Multiple n x) = (n, x)
 	(n, e) = tupleOfListItem y
 
+-- Problem 14: Duplicate the elements of a list.
+dupli :: [a] -> [a]
+dupli [] = []
+dupli (x:[]) = x:x:[]
+dupli (x:xs) = x:x:dupli xs
