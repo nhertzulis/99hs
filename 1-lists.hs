@@ -106,10 +106,31 @@ encode2 (x:xs)
 encode3 :: (Eq a, Integral b) => [a] -> [(b, a)]
 encode3 xs = foldr addElementToEncodedList [] xs
 	where
-		addElementToEncodedList x [] = (1, x):[]
-		addElementToEncodedList x ((n, y):zs)
-			| x == y = (n+1, y):zs
-			| otherwise = (1, x):(n, y):zs
+	addElementToEncodedList x [] = (1, x):[]
+	addElementToEncodedList x ((n, y):zs)
+		| x == y = (n+1, y):zs
+		| otherwise = (1, x):(n, y):zs
 
+-- Problem 11: Modified run-length encoding.
+-- Modify the result of problem 10 in such a way that if an element has no duplicates it is simply
+-- copied into the result list. Only elements with duplicates are transferred as (N E) lists.
+data ListItem a = Single a | Multiple Integer a deriving (Show)
 
- 
+encodeModified :: (Eq a) => [a] -> [ListItem a]
+encodeModified = map f . encode
+	where
+	f (1, x) = Single x
+	f (n, x) = Multiple n x
+
+-- The following implementation does not use the result of problem 10.
+encodeModified2 :: (Eq a) => [a] -> [ListItem a]
+encodeModified2 [] = []
+encodeModified2 (x:[]) = (Single x):[]
+encodeModified2 (x:xs)
+	| e == x = (Multiple (n+1) x):ys
+	| otherwise = (Single x):y:ys
+	where
+	(y:ys) = encodeModified2 xs
+	tupleFromListItem (Single x) = (1, x)
+	tupleFromListItem (Multiple n x) = (n, x)
+	(n, e) = tupleFromListItem y
