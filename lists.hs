@@ -188,3 +188,18 @@ split xs 0 = ([], xs)
 split [] _ = ([], [])
 split (x:xs) n = (x:ys, zs)
 	where (ys, zs) = split xs (n-1)
+	
+-- Problem 18: Extract a slice from a list.
+-- Given two indices, i and k, the slice is the list containing the elements between the i'th and
+-- k'th element of the original list (both limits included). Start counting the elements with 1.
+slice :: (Integral b) => [a] -> b -> b -> [a]
+slice [] _ _ = []
+slice (x:_) 1 1 = x:[]
+slice (x:xs) 1 k = x:slice xs 1 (k-1)
+slice (x:xs) i k = slice xs (i-1) (k-1)
+
+slice2 :: (Integral b) => [a] -> b -> b -> [a]
+slice2 xs i k = fst $ split (snd $ split xs (i-1)) (k-i+1)
+
+slice3 :: [a] -> Int -> Int -> [a]
+slice3 xs i k = take (k-i+1) $ drop (i-1) xs
