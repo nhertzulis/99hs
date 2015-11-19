@@ -170,3 +170,21 @@ repli2 (x:xs) n = repli2' x n $ repli2 xs n
 	where
 	repli2' _ 0 xs = xs
 	repli2' x n xs = x:repli2' x (n-1) xs
+
+-- Problem 16: Drop every N'th element from a list.
+dropEvery :: (Integral b) => [a] -> b -> [a]
+dropEvery _ 1 = []
+dropEvery xs k = dropEvery' xs k k
+
+dropEvery' :: (Integral b) => [a] -> b -> b -> [a]
+dropEvery' [] _ _ = []
+dropEvery' (x:xs) k 1 = dropEvery' xs k k
+dropEvery' (x:xs) k remaining = x:dropEvery' xs k (remaining-1) 
+
+-- Problem 17: Split a list into two parts; the length of the first part is given.
+-- Do not use any predefined predicates.
+split :: (Integral b) => [a] -> b -> ([a], [a])
+split xs 0 = ([], xs)
+split [] _ = ([], [])
+split (x:xs) n = (x:ys, zs)
+	where (ys, zs) = split xs (n-1)
