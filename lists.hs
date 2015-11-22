@@ -225,3 +225,26 @@ removeAt :: (Integral a) => a -> [b] -> (b, [b])
 removeAt 1 (x:xs) = (x, xs)
 removeAt k (x:xs) = (y, x:ys)
 	where (y, ys) = removeAt (k-1) xs
+
+-- Problem 21: Insert an element at a given position into a list.
+insertAt :: (Integral b) => a -> [a] -> b -> [a]
+insertAt x' xs 1 = x':xs
+insertAt x' (x:xs) n = x:insertAt x' xs (n-1)
+
+insertAt2 :: a -> [a] -> Int -> [a]
+insertAt2 x xs n = fst $ foldr f ([], length xs) xs 
+	where
+		f y (ys, i) = if i == n then  (x:y:ys, i-1) else (y:ys, i-1)
+	
+insertAt3 :: a -> [a] -> Int -> [a]
+insertAt3 elem list pos = foldr addElem [] $ zip [1..] list
+	where addElem (i, x) xs
+		| i == pos  = elem:x:xs
+		| otherwise = x:xs
+
+-- Problem 22: Create a list containing all integers within a given range.
+range :: Integer -> Integer -> [Integer]
+range a b
+	| a <= b = a:range (a+1) b
+	| otherwise = []
+	
