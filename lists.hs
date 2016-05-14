@@ -14,9 +14,12 @@ myButLast :: [a] -> a
 myButLast (x:_:[]) = x
 myButLast (_:xs) = myButLast xs
 
+myButLast2 :: [a] -> a
+myButLast2 = last . init
+
 -- Problem 3: Find the K'th element of a list. The first element in the list is number 1.
 elementAt :: (Integral b) => [a] -> b -> a
-elementAt (x:xs) 1 = x
+elementAt (x:_) 1 = x
 elementAt (_:xs) n = elementAt xs (n-1)
 
 -- Problem 4: Find the number of elements of a list.
@@ -61,6 +64,9 @@ initAndLast :: [a] -> ([a], a)
 initAndLast (x:[]) = ([], x)
 initAndLast (x:xs) = let (ys, y) = initAndLast xs in ((x:ys), y)
 
+isPalindrome3 :: (Eq a) => [a] -> Bool
+isPalindrome3 xs = xs == reverse xs
+
 -- Problem 7: Flatten a nested list structure.
 data NestedList a = Elem a | List [NestedList a]
 flatten :: NestedList a -> [a]
@@ -75,7 +81,11 @@ compress (x:[]) = x:[]
 compress (x:x':xs)
 	| x == x' = compress (x':xs)
 	| otherwise = x : compress (x':xs)
-	
+
+compress2 :: (Eq a) => [a] -> [a]
+compress2 [] = []
+compress2 (x:xs) = x:(compress2 $ dropWhile (== x) xs)
+   
 -- Problem 9: Pack consecutive duplicates of list elements into sublists. If a list contains
 -- repeated elements they should be placed in separate sublists.
 pack :: (Eq a) => [a] -> [[a]]
@@ -85,6 +95,12 @@ pack (x:xs)
 	| x == y = (x:y:ys):zs
 	| otherwise = (x:[]):(y:ys):zs
 	where ((y:ys):zs) = pack xs
+
+pack2 :: (Eq a) => [a] -> [[a]]
+pack2 [] = []
+pack2 (x:xs) =
+    let (ys, zs) = span (== x) xs
+    in (x:ys):pack2 zs 
 
 -- Problem 10: Run-length encoding of a list. Use the result of problem P09 to implement the
 -- so-called run-length encoding data compression method. Consecutive duplicates of elements are
@@ -128,8 +144,15 @@ encodeModified = map f . encode
 decodeModified  :: (Eq a) => [ListItem a] -> [a]
 decodeModified [] = []
 decodeModified ((Single x):xs) = x : decodeModified xs
-decodeModified ((Multiple 2 x):xs) = x : x : decodeModified xs
-decodeModified ((Multiple n x):xs) = x : decodeModified ((Multiple (n-1) x):xs)
+decodeModified ((Multiple n x):xs)
+    | n == 2 = x : x : decodeModified xs
+    | n > 2 = x : decodeModified ((Multiple (n-1) x):xs)
+
+decodeModified2  :: (Eq a) => [ListItem a] -> [a]
+decodeModified2 = concat . map decodeElement
+    where
+        decodeElement (Single x) = x:[]
+        decodeElement (Multiple n x) = take (fromIntegral n) $ repeat x 
 
 -- Problem 13: Run-length encoding of a list (direct solution).
 -- Implement the so-called run-length encoding data compression method directly. I.e. don't
@@ -143,14 +166,24 @@ encodeDirect (x:xs)
 	| otherwise = (Single x):y:ys
 	where
 	(y:ys) = encodeDirect xs
-	tupleOfListItem (Single x) = (1, x)
-	tupleOfListItem (Multiple n x) = (n, x)
-	(n, e) = tupleOfListItem y
+	decodeListItem (Single x) = (1, x)
+	decodeListItem (Multiple n x) = (n, x)
+	(n, e) = decodeListItem y
+
+encodeDirect2 :: (Eq a) => [a] -> [ListItem a]
+encodeDirect2 [] = []
+encodeDirect2 (x:[]) = (Single x):[]
+encodeDirect2 (x:x':xs)
+    | x == x' = (addOneMore y):ys
+    | otherwise = (Single x):y:ys
+    where
+        (y:ys) = encodeDirect2 $ x':xs
+        addOneMore (Single x) = Multiple 2 x
+        addOneMore (Multiple n x) = Multiple (n+1) x
 
 -- Problem 14: Duplicate the elements of a list.
 dupli :: [a] -> [a]
 dupli [] = []
-dupli (x:[]) = x:x:[]
 dupli (x:xs) = x:x:dupli xs
 
 -- Problem 15: Replicate the elements of a list a given number of times.
@@ -171,6 +204,10 @@ repli2 (x:xs) n = repli2' x n $ repli2 xs n
 	repli2' _ 0 xs = xs
 	repli2' x n xs = x:repli2' x (n-1) xs
 
+repli3 :: (Integral b) => [a] -> b -> [a]
+repli3 [] _ = []
+repli3 (x:xs) n = (take (fromIntegral n) $ repeat x) ++ repli3 xs n
+
 -- Problem 16: Drop every N'th element from a list.
 dropEvery :: (Integral b) => [a] -> b -> [a]
 dropEvery _ 1 = []
@@ -181,13 +218,20 @@ dropEvery' [] _ _ = []
 dropEvery' (x:xs) k 1 = dropEvery' xs k k
 dropEvery' (x:xs) k remaining = x:dropEvery' xs k (remaining-1) 
 
+dropEvery2 :: [a] -> Int -> [a]
+dropEvery2 [] _ = []
+dropEvery2 xs k =
+    let (ys, zs) = splitAt (k-1) xs
+    in ys ++ dropEvery2 (drop 1 zs) k
+
 -- Problem 17: Split a list into two parts; the length of the first part is given.
 -- Do not use any predefined predicates.
 split :: (Integral b) => [a] -> b -> ([a], [a])
-split xs 0 = ([], xs)
-split [] _ = ([], [])
-split (x:xs) n = (x:ys, zs)
-	where (ys, zs) = split xs (n-1)
+split xs n
+    | n <= 0 = ([], xs)
+    | null xs = ([], [])
+    | otherwise = (head xs:ys, zs)
+	where (ys, zs) = split (tail xs) (n-1)
 	
 -- Problem 18: Extract a slice from a list.
 -- Given two indices, i and k, the slice is the list containing the elements between the i'th and
@@ -207,12 +251,8 @@ slice3 xs i k = take (k-i+1) $ drop (i-1) xs
 -- Problem 19: Rotate a list N places to the left.
 -- Hint: Use the predefined functions length and (++).
 rotate :: [a] -> Int -> [a]
-rotate xs n
-	| n /= 0 = zs++ys
-	| otherwise = xs
-	where
-		m = if n < 0 then length xs + n else n
-		(ys, zs) = split xs m
+rotate xs n = zs++ys
+	where (ys, zs) = split xs (n `mod` length xs)
 	
 rotate2 :: [a] -> Int -> [a]
 rotate2 xs n
@@ -226,6 +266,11 @@ removeAt 1 (x:xs) = (x, xs)
 removeAt k (x:xs) = (y, x:ys)
 	where (y, ys) = removeAt (k-1) xs
 
+removeAt2 :: (Integral a) => a -> [b] -> (b, [b])
+removeAt2 k xs =
+    let (ys, (z:zs)) = split xs (k-1)
+    in (z, ys++zs)
+
 -- Problem 21: Insert an element at a given position into a list.
 insertAt :: (Integral b) => a -> [a] -> b -> [a]
 insertAt x' xs 1 = x':xs
@@ -234,13 +279,18 @@ insertAt x' (x:xs) n = x:insertAt x' xs (n-1)
 insertAt2 :: a -> [a] -> Int -> [a]
 insertAt2 x xs n = fst $ foldr f ([], length xs) xs 
 	where
-		f y (ys, i) = if i == n then  (x:y:ys, i-1) else (y:ys, i-1)
+		f y (ys, i) = ((if i == n then x:y:ys else y:ys), i-1)
 	
 insertAt3 :: a -> [a] -> Int -> [a]
 insertAt3 elem list pos = foldr addElem [] $ zip [1..] list
 	where addElem (i, x) xs
 		| i == pos  = elem:x:xs
 		| otherwise = x:xs
+
+insertAt4 :: a -> [a] -> Int -> [a]
+insertAt4 x xs k =
+    let (ys, zs) = split xs (k-1)
+    in ys ++ (x:zs)
 
 -- Problem 22: Create a list containing all integers within a given range.
 range :: Integer -> Integer -> [Integer]
